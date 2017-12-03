@@ -1,6 +1,6 @@
 from bs4 import BeautifulSoup
 from selenium import webdriver
-file_to_write = r"C:\Users\Tut10\Desktop\PSTool-Python\Final\test.txt"
+stock_file = r"C:\Users\Tut10\Desktop\PSTool-Python\Final\test.txt"
 
 def Costco_Shipping(url):
     """This opens up chrome. Scans through the webpage for the out of stock class
@@ -11,18 +11,18 @@ def Costco_Shipping(url):
     
     driver.get(url)
     
-    notworkfile = open(file_to_write, "a")
+    file_to_write = open(stock_file, "a")
     
     try:
         x = driver.find_element_by_class_name("out-of-stock")
         if x:
             driver.quit()
-            notworkfile.write("[-] " + url + '\n')
-            notworkfile.close()            
+            file_to_write.write("[-] Out of stock " + url + '\n')
+            file_to_write.close()            
             return "\t\t[-] Out of Stock"
     except:
         driver.quit()
-        notworkfile.close() 
+        file_to_write.close() 
         return "\t\t[+] In Stock"
     
 
@@ -35,28 +35,34 @@ def Home_Depot_Shipping(url):
     
     driver = webdriver.Chrome(r"C:\Users\Tut10\Desktop\PSTool-Python\chromedriver.exe")
     driver.get(url)
-    soup = BeautifulSoup(driver.page_source,"lxml")
-    driver.quit()
     
     # open a file to write to
-    notworkfile = open(file_to_write, "a")
+    file_to_write = open(stock_file, "a")
     
     # send that file to me via email or text
-     
-    for title in soup.select("#buybelt"):
-        try:
-            shipping = title.select(".u__text--success")[1].text.strip()
-        except:
-            shipping = title.select(".u__text--success")
-        
-        finally:
-            if shipping == "Free Delivery": 
-                notworkfile.close()   
-                return "\t\t[+] Free Delivery"         
-            else: # write to file which ones don't work
-                notworkfile.write("[-] " + url + '\n')
-                notworkfile.close()
-                return "\t\t[-] Not Free Delivery or Out of Stock"
+    
+    free_delivery = driver.find_elements_by_xpath(r'//*[@id="buybelt"]/div[2]/div[2]/div/div[2]')
+    
+    # Now it checks both for it
+    try:
+        if "Free Delivery" in free_delivery[0].text:
+            driver.quit()
+            file_to_write.close()
+            return "\t\t[+] Free Delivery"
+        elif "Get it as soon as tomorrow" or "Schedule delivery to your home or jobsite" in free_delivery[0].text:
+            driver.quit()
+            #file_to_write.write("Cell: " + str(cell) + "[*] Express Delivery " + url + '\n')
+            file_to_write.write("[*] Express Delivery " + url + "\n")
+            file_to_write.close()
+            return "\t\t[*] Express Delivery"
+        else:    
+            driver.quit()
+            file_to_write.write("[-] Out of stock %s\n" % url)
+            file_to_write.close()
+            return "\t\t[-] Out of stock!"
+    except Exception as e:
+        driver.quit()
+        print(e)    
 
 def Kohls_Shipping(url):
     pass

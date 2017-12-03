@@ -36,11 +36,10 @@ def download_links():
     variable of free shipping that i have listed at the beginning in the content of the web page. Then it prints to the
     excel file that in that row of the item saying what type of shipping it is"""
     
-    print("[*] Opening file")
+    print("[*] Opening Excel file")
     exfile = "Products - GorillaDealsToday.xlsx"
     #wb = openpyxl.load_workbook('Products - GorillaDealsToday.xlsx')
     wb = openpyxl.load_workbook(exfile)
-    #The tab we want is called Cost
     extab = "Active Items"
     #sheet = wb.get_sheet_by_name('Cost')
     sheet = wb.get_sheet_by_name(extab)
@@ -54,8 +53,8 @@ def download_links():
             elif "costco.com" in cell.value:
                 stock = shipping_functions.Costco_Shipping(cell.value)
             else:
-                print("[!] Not Home Depot or Costco Item")
-            print("\t[+] Item: %s" % cell.value)
+                print("\t\t[!] Not Home Depot or Costco Item")
+            print("\t\t[+] Item: %s" % cell.value)
             print(stock)
             
                 
